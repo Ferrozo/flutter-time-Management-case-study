@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:time_managment_app/src/domain/models/timer_status_model.dart';
 
-const pomodoroTotalTime = 25 * 60;
+const pomodoroTotalTime = 1 * 60;
 const shortBreakTime = 5 * 60;
 const longBreakTime = 15 * 60;
 const pomodoroPerSet = 4;

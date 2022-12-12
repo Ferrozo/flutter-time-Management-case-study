@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:time_managment_app/src/core/utils/constants.dart';
 import 'package:time_managment_app/src/domain/models/timer_status_model.dart';
-// import 'package:time_managment_app/src/presentation/widgets/button/custom_btn.dart';
+import 'package:time_managment_app/src/presentation/widgets/button/custom_btn.dart';
 import 'package:time_managment_app/src/presentation/widgets/progress_status/progress_status.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,6 +30,13 @@ class _HomePageState extends State<HomePage> {
   late Timer _timer;
   int pomodoNumber = 0;
   int setNumber = 0;
+
+  @override
+  void dispose() {
+    _cancelTimer();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,8 +56,8 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   CircularPercentIndicator(
                     radius: 100,
-                    lineWidth: 15.0,
-                    percent: 0.9,
+                    lineWidth: 8.0,
+                    percent: _getPomodoroPercentage(),
                     circularStrokeCap: CircularStrokeCap.round,
                     center: Text(_secsToFormatedString(remaingTime)),
                     progressColor: statusColor[pomodoroStatus],
@@ -61,12 +68,15 @@ class _HomePageState extends State<HomePage> {
                       total: pomodoroPerSet),
                   const SizedBox(height: 40),
                   Text(statusDescription[pomodoroStatus].toString()),
-                  ElevatedButton(
-                      onPressed: _mainBtnClicked, child: const Text('Ok')),
                   // CustomBtn(
-                  //   onClick: _mainBtnClicked,
-                  //   btnTxt: 'Ok',
+                  //   onClick: () {},
+                  //   btnTxt: mainBtnText,
                   // ),
+                  ElevatedButton(
+                      onPressed: _mainBtnClicked, child: Text(mainBtnText)),
+                  ElevatedButton(
+                      onPressed: _resetTimerCountDown,
+                      child: const Text('reset')),
                 ],
               ),
             ),
@@ -88,20 +98,53 @@ class _HomePageState extends State<HomePage> {
     return '$roundedMinutes : $remainSecsFormated';
   }
 
-  _mainBtnClicked() {
+  _getPomodoroPercentage() {
+    int totalTime;
     switch (pomodoroStatus) {
       case PomodoroStatus.runningPomodoro:
+        totalTime = pomodoroTotalTime;
         break;
+      case PomodoroStatus.pausedPomodoro:
+        totalTime = pomodoroTotalTime;
+        break;
+      case PomodoroStatus.runningShortBreak:
+        totalTime = shortBreakTime;
+        break;
+      case PomodoroStatus.pausedShortBreak:
+        totalTime = shortBreakTime;
+        break;
+      case PomodoroStatus.runningLongBreak:
+        totalTime = longBreakTime;
+        break;
+      case PomodoroStatus.pausedLongBreak:
+        totalTime = longBreakTime;
+        break;
+      case PomodoroStatus.setFinished:
+        totalTime = pomodoroTotalTime;
+        break;
+    }
+    double percentage = (totalTime - remaingTime) / totalTime;
+    return percentage;
+  }
+
+  _mainBtnClicked() {
+    switch (pomodoroStatus) {
       case PomodoroStatus.pausedPomodoro:
         _startTimerCountDown();
         break;
+      case PomodoroStatus.runningPomodoro:
+        _pauseTimerCountDown();
+        break;
       case PomodoroStatus.runningShortBreak:
+        _pauseShortBreakTimerCountDown();
         break;
       case PomodoroStatus.pausedShortBreak:
+        _startShortBreakTimerCountDown();
         break;
       case PomodoroStatus.pausedLongBreak:
         break;
       case PomodoroStatus.runningLongBreak:
+        _pauseLongBreakTimerCountDown();
         break;
       case PomodoroStatus.setFinished:
         break;
@@ -110,7 +153,6 @@ class _HomePageState extends State<HomePage> {
 
   _startTimerCountDown() {
     pomodoroStatus = PomodoroStatus.runningPomodoro;
-    _cancelTimer();
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (timer) => {
@@ -147,7 +189,55 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  _pauseTimerCountDown() {
+    pomodoroStatus = PomodoroStatus.pausedPomodoro;
+    _cancelTimer();
+    setState(() {
+      mainBtnText = _btnResumePomo;
+    });
+  }
+
+  _resetTimerCountDown() {
+    pomodoNumber = 0;
+    setNumber = 0;
+    _cancelTimer();
+    _stopTimerCountDown();
+  }
+
+  _stopTimerCountDown() {
+    pomodoroStatus = PomodoroStatus.pausedPomodoro;
+    setState(() {
+      mainBtnText = _btnStartPomo;
+      remaingTime = pomodoroTotalTime;
+    });
+  }
+
+  _pauseShortBreakTimerCountDown() {
+    pomodoroStatus = PomodoroStatus.pausedShortBreak;
+    _pauseBreakTimerCountDown();
+  }
+
+  _pauseLongBreakTimerCountDown() {
+    pomodoroStatus = PomodoroStatus.pausedLongBreak;
+    _pauseBreakTimerCountDown();
+  }
+
+  _pauseBreakTimerCountDown() {
+    _cancelTimer();
+    setState(() {
+      mainBtnText = _btnResumeBreak;
+    });
+  }
+
   _cancelTimer() {
-    _timer.cancel();
+    // ignore: unnecessary_null_comparison
+    if (_timer != null) {
+      _timer.cancel();
+    }
+  }
+
+  _startShortBreakTimerCountDown() {
+    pomodoroStatus = PomodoroStatus.runningShortBreak;
+    _cancelTimer();
   }
 }
