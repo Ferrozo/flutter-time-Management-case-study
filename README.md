@@ -4,7 +4,7 @@
 
 In this repository I built an app to control my focus time using pomodoro technique :)
 
-So if you like give an Star please :)
+So if you liked give an Star please :)
 ## -----------------------------------------------
    
 app output:
