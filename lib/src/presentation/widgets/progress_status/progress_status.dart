@@ -9,31 +9,45 @@ class ProgressStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double iconSize = 20.0;
+    double containerSize = 20.0;
 
-    final doneIcon = Icon(
-      Icons.beenhere,
-      color: Colors.orange,
-      size: iconSize,
-    );
-    final notDoneIcon = Icon(
-      Icons.beenhere,
-      color: Colors.grey,
-      size: iconSize,
+    final doneContainer = Container(
+      width: containerSize,
+      height: containerSize,
+      decoration: BoxDecoration(
+        color: Colors.orange,
+        border: Border.all(width: 2.5, color: Colors.orange),
+        borderRadius: BorderRadius.circular(50),
+      ),
     );
 
-    final List<Icon> icons = [];
+    final unDoneContainer = Container(
+      width: containerSize,
+      height: containerSize,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        border: Border.all(width: 2.5, color: Colors.grey),
+        borderRadius: BorderRadius.circular(50),
+      ),
+    );
+
+    final List<Container> containers = [];
     for (int i = 0; i < total; i++) {
       if (i < done) {
-        icons.add(doneIcon);
+        containers.add(doneContainer);
+        // icons.add(doneIcon);
       } else {
-        icons.add(notDoneIcon);
+        // icons.add(notDoneIcon);
+        containers.add(unDoneContainer);
       }
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: icons,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 110),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: containers,
+      ),
     );
   }
 }
