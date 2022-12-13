@@ -389,6 +389,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   _notificationSound() {
-    print('Sound');
+    // print('Sound');
   }
 }
